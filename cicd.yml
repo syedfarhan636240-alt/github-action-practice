@@ -1,0 +1,45 @@
+name: Simple CI/CD Pipeline
+
+# Kab run hona chahiye (jab main branch par code push ho)
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Repository ka code checkout karein
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Environment setup (e.g., Python)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3. Dependencies install aur test run karein
+      - name: Install dependencies & Test
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          echo "Running tests..."
+          # Yahan apna test command daalein (e.g., pytest)
+
+  deploy:
+    needs: build-and-test  # Pehle test pass hona zaroori hai
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy Application
+        run: |
+          echo "Deploying to server/cloud..."
+          # Yahan AWS S3 sync ya EC2 deploy script add kar sakte hain
